@@ -19,7 +19,29 @@
 #include <voltbro/motors/stepper/stepper_spi.hpp>
 
 EEPROM eeprom(&hi2c4);
-StepperMotorSPI motor(
+
+// Example of using inheritance of the motor class to customize logic
+class CustomStepper: public StepperMotorSPI {
+public:
+    using StepperMotorSPI::StepperMotorSPI; // inherit constructors
+
+    /* Override this method to send custom configuration over SPI
+    HAL_StatusTypeDef send_config() override {
+        // SPI CONFIG HERE
+        // SEE Drivers/libvoltbro/voltbro/motors/stepper/stepper_spi.hpp:77 as example
+    }
+    */
+
+    /* Override this method to customize setting of target value for motion controller
+        * By default, sets position
+        * SEE Drivers/libvoltbro/voltbro/motors/stepper/stepper_spi.hpp:109 as example
+    void set_target(uint32_t value) override {
+        // SEE TMC510 docs for documentation on SPI registers
+    }
+    */
+};
+
+CustomStepper motor(
     StepperSPIConfig{
         .direction = GpioPin(REFL_DIR_GPIO_Port, REFL_DIR_Pin),
         .sd_mode = GpioPin(SD_MODE_GPIO_Port, SD_MODE_Pin),
